@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Bienestar · CETIS 43</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Nunito:wght@400;600;700;800&display=swap');
+  :root{
+    --dark:#0e6b7d; --main:#1f9bb0; --light:#7fd4df; --paper:#f4fbfc;
+    --coral:#f4845f; --good:#3aa66b; --warn:#e0a800; --bad:#d1495b;
+    --ink:#1f3438; --muted:#5a7d8c; --card:#ffffff; --line:#d9ecef;
+    --shadow:0 10px 30px -12px rgba(14,107,125,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    color:var(--ink); line-height:1.55; min-height:100vh;
+    background:
+      radial-gradient(1200px 500px at 100% -10%, rgba(127,212,223,.35), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(244,132,95,.18), transparent 55%),
+      linear-gradient(180deg,#eaf7f9,#f4fbfc 40%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+  header{text-align:center;padding:18px 0 6px}
+  .logo{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.7);
+    border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:700;
+    color:var(--dark);font-size:.8rem;letter-spacing:.04em;text-transform:uppercase}
+  .logo .dot{width:9px;height:9px;border-radius:50%;background:var(--coral)}
+  h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:2.5rem;color:var(--dark);
+    margin:14px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1.02rem;max-width:520px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;
+    padding:24px 22px;margin:20px 0;box-shadow:var(--shadow)}
+  .card h2{font-family:'Fraunces',serif;font-weight:600;color:var(--dark);font-size:1.4rem;
+    display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .card .hint{color:var(--muted);font-size:.92rem;margin-bottom:18px}
+  .badge{font-size:1.5rem}
+  /* sliders */
+  .metric{margin:18px 0}
+  .metric .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .metric .name{font-weight:700}
+  .metric .val{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--main);min-width:40px;text-align:right}
+  input[type=range]{-webkit-appearance:none;width:100%;height:10px;border-radius:999px;
+    background:linear-gradient(90deg,var(--good),var(--warn),var(--bad));outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+    background:#fff;border:4px solid var(--main);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--main);cursor:pointer}
+  .scalehint{display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted);margin-top:3px}
+  /* mood */
+  .moods{display:flex;gap:8px;justify-content:space-between;margin-top:6px}
+  .mood{flex:1;text-align:center;padding:10px 0;border:2px solid var(--line);border-radius:14px;
+    background:#fff;cursor:pointer;font-size:1.6rem;transition:.15s;user-select:none}
+  .mood small{display:block;font-size:.62rem;color:var(--muted);margin-top:2px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .mood:hover{transform:translateY(-2px)}
+  .mood.sel{border-color:var(--coral);background:#fff5f0;box-shadow:0 6px 16px -8px var(--coral)}
+  /* buttons */
+  .btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:800;
+    border-radius:14px;padding:13px 20px;font-size:1rem;transition:.15s;width:100%}
+  .btn.primary{background:var(--main);color:#fff;box-shadow:0 8px 20px -8px var(--main)}
+  .btn.primary:hover{background:var(--dark);transform:translateY(-1px)}
+  .btn.ghost{background:#fff;color:var(--dark);border:2px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--main)}
+  .btn.tiny{width:auto;padding:8px 14px;font-size:.85rem}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row .btn{flex:1;min-width:140px}
+  /* chart */
+  .chartbox{position:relative;width:100%;overflow:hidden;border-radius:14px;background:var(--paper);border:1px solid var(--line)}
+  canvas{display:block;width:100%;height:auto}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-size:.85rem;font-weight:700}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:4px;border-radius:2px;display:inline-block}
+  .empty{text-align:center;color:var(--muted);padding:34px 10px;font-weight:600}
+  /* retos */
+  .reto{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border:1px solid var(--line);
+    border-radius:14px;margin-bottom:10px;background:#fff;cursor:pointer;transition:.15s}
+  .reto:hover{border-color:var(--light);background:var(--paper)}
+  .reto.done{background:#eefaf2;border-color:#bfe8cf}
+  .reto.done .txt{text-decoration:line-through;color:var(--muted)}
+  .check{width:26px;height:26px;border-radius:8px;border:2px solid var(--main);flex:none;
+    display:grid;place-items:center;font-weight:900;color:#fff;background:#fff;transition:.15s}
+  .reto.done .check{background:var(--good);border-color:var(--good)}
+  .txt{font-weight:600;font-size:.97rem}
+  .txt small{display:block;color:var(--muted);font-weight:600;font-size:.8rem}
+  .progress{height:14px;border-radius:999px;background:var(--line);overflow:hidden;margin:6px 0}
+  .progress > div{height:100%;background:linear-gradient(90deg,var(--main),var(--light));width:0;transition:.4s}
+  .pct{font-weight:800;color:var(--dark)}
+  /* note */
+  .note{background:#fff7f2;border:1px solid #f6d8c8;border-radius:16px;padding:16px 18px;font-size:.9rem;color:#7a4a36}
+  .note b{color:var(--coral)}
+  pre.summary{background:var(--paper);border:1px dashed var(--main);border-radius:14px;padding:16px;
+    white-space:pre-wrap;font-family:inherit;font-size:.9rem;color:var(--ink);margin-top:14px;display:none}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:30px}
+  .priv{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.7);
+    border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-weight:700;color:var(--dark);font-size:.78rem}
+  /* caja de calma */
+  .tool{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}
+  .tool .head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;font-weight:700;user-select:none}
+  .tool .head .ic{font-size:1.4rem}
+  .tool .head .arr{margin-left:auto;color:var(--main);transition:.2s;font-weight:900}
+  .tool.open .head .arr{transform:rotate(90deg)}
+  .tool .body{display:none;padding:0 16px 16px;color:var(--ink)}
+  .tool.open .body{display:block}
+  .tool .body ol,.tool .body ul{margin:6px 0 0 18px} .tool .body li{margin:5px 0}
+  .breathe{display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0 2px}
+  .bcircle{width:140px;height:140px;border-radius:50%;display:grid;place-items:center;
+    background:radial-gradient(circle at 35% 30%, var(--light), var(--main));
+    color:#fff;font-weight:800;font-size:1.05rem;text-align:center;
+    transform:scale(.7);transition:transform 4s ease-in-out;box-shadow:0 12px 30px -10px var(--main)}
+  /* ayuda */
+  .help{background:linear-gradient(180deg,#fff,#f4fbfc);border:1px solid var(--line);border-radius:22px;
+    padding:24px 22px;margin:20px 0;box-shadow:var(--shadow)}
+  .help h2{font-family:'Fraunces',serif;font-weight:600;color:var(--dark);font-size:1.4rem;display:flex;gap:10px;align-items:center}
+  .help .warm{background:#fff7f2;border:1px solid #f6d8c8;border-radius:14px;padding:14px 16px;color:#7a4a36;font-size:.92rem;margin:12px 0 16px}
+  .help .warm b{color:var(--coral)}
+  .res{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:#fff}
+  .res .ic{font-size:1.5rem;flex:none}
+  .res .info{font-size:.9rem} .res .info b{color:var(--dark)} .res .info .num{font-family:'Fraunces',serif;font-size:1.25rem;color:var(--main);font-weight:600}
+  .res .info small{color:var(--muted);display:block}
+  .contact label{font-weight:700;color:var(--dark);font-size:.9rem;display:block;margin:6px 0 4px}
+  .contact input{width:100%;border:2px solid var(--line);border-radius:12px;padding:11px 13px;font-family:inherit;font-size:.95rem;color:var(--ink)}
+  .contact input:focus{outline:none;border-color:var(--main)}
+  .saved{font-size:.8rem;color:var(--good);font-weight:700;margin-top:6px;display:none}
+  .inst{color:var(--dark);font-weight:800;font-size:1rem;margin-top:2px}
+  .author{color:var(--muted);font-weight:700;font-size:.9rem;margin-top:1px}
+  /* animación patinadores */
+  .hero{display:flex;justify-content:center;margin:6px 0 2px}
+  .hero svg{width:100%;max-width:400px;height:auto}
+  @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  @keyframes glide{0%,100%{transform:translateX(-10px)}50%{transform:translateX(10px)}}
+  @keyframes speedfade{0%,100%{opacity:.55}50%{opacity:.08}}
+  .a-glide1{animation:glide 4s ease-in-out infinite}
+  .a-glide2{animation:glide 3.6s ease-in-out infinite .85s}
+  .a-glide3{animation:glide 4.4s ease-in-out infinite 1.7s}
+  .a-speed{animation:speedfade 1.6s ease-in-out infinite}
+
+  /* botón de pánico */
+  .panic{width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;font-size:1.05rem;
+    color:#fff;background:linear-gradient(135deg,#e05a6b,#c0394b);border-radius:18px;padding:16px 18px;
+    display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 4px;
+    box-shadow:0 12px 26px -10px rgba(192,57,75,.7);transition:.15s;animation:pulse 2.4s infinite}
+  .panic:hover{transform:translateY(-2px)}
+  @keyframes pulse{0%,100%{box-shadow:0 12px 26px -10px rgba(192,57,75,.7)}50%{box-shadow:0 12px 34px -6px rgba(192,57,75,.95)}}
+  .panic .pic{font-size:1.5rem}
+  .panic small{display:block;font-weight:700;font-size:.74rem;opacity:.92;margin-top:2px}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(15,40,45,.55);backdrop-filter:blur(3px);
+    display:none;align-items:flex-start;justify-content:center;z-index:50;padding:18px;overflow-y:auto}
+  .modal.show{display:flex}
+  .modal-inner{background:#fff;border-radius:22px;max-width:680px;width:100%;margin:10px 0 40px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.5);overflow:hidden}
+  .modal-top{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+  .modal-top h2{font-family:'Fraunces',serif;color:var(--dark);font-size:1.2rem;font-weight:600;margin:0}
+  .qexit{margin-left:auto;background:#fff;border:2px solid #f0c4cc;color:#c0394b;font-weight:800;
+    border-radius:10px;padding:7px 12px;font-size:.82rem;cursor:pointer}
+  .closex{background:var(--paper);border:1px solid var(--line);color:var(--dark);font-weight:800;
+    border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:1.1rem}
+  .modal-body{padding:18px}
+  /* urgente */
+  .urgent{border:2px solid #f0c4cc;border-radius:16px;padding:14px;margin-bottom:16px;background:#fff7f8;text-align:center}
+  .urgent .ub{width:100%;border:none;cursor:pointer;font-family:inherit;font-weight:800;color:#fff;
+    background:linear-gradient(135deg,#e05a6b,#c0394b);border-radius:12px;padding:13px;font-size:1rem}
+  .urgent .uhint{font-size:.82rem;color:#a05060;margin-top:8px}
+  .emergency{display:none;margin-top:14px;text-align:left}
+  .urgent.open .emergency{display:block}
+  .callbtn{display:flex;align-items:center;gap:12px;text-decoration:none;border:1px solid var(--line);
+    border-radius:12px;padding:12px 14px;margin-bottom:8px;background:#fff;color:var(--ink)}
+  .callbtn .ic{font-size:1.4rem}
+  .callbtn b{color:var(--dark)} .callbtn .num{font-family:'Fraunces',serif;color:#c0394b;font-weight:700;font-size:1.15rem}
+  .steps{counter-reset:s;margin:8px 0 0;padding:0;list-style:none}
+  .steps li{position:relative;padding:6px 0 6px 34px;font-size:.92rem}
+  .steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:5px;width:24px;height:24px;
+    background:#c0394b;color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.8rem}
+  /* tabs */
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .tab{border:none;background:none;font-family:inherit;font-weight:700;color:var(--muted);cursor:pointer;
+    padding:9px 12px;border-radius:10px 10px 0 0;font-size:.92rem;border-bottom:3px solid transparent}
+  .tab.active{color:var(--dark);border-bottom-color:var(--main);background:var(--paper)}
+  .pane{display:none} .pane.active{display:block}
+  /* cuestionario */
+  .q{margin-bottom:16px} .q .qt{font-weight:700;margin-bottom:8px;font-size:.97rem}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 13px;cursor:pointer;
+    font-family:inherit;font-size:.88rem;font-weight:600;color:var(--ink);transition:.12s}
+  .opt:hover{border-color:var(--light)}
+  .opt.sel{border-color:var(--main);background:#eef9fb;color:var(--dark)}
+  .result{display:none;margin-top:14px;border-radius:14px;padding:16px;font-size:.94rem;line-height:1.5}
+  .result.show{display:block}
+  .result h4{margin-bottom:6px;font-size:1.05rem}
+  .result.alta{background:#fff1f3;border:1px solid #f0c4cc} .result.alta h4{color:#c0394b}
+  .result.media{background:#fff8ec;border:1px solid #f3e0bd} .result.media h4{color:#b07d12}
+  .result.baja{background:#eefaf2;border:1px solid #bfe8cf} .result.baja h4{color:var(--good)}
+  .signlist li{margin:7px 0} .stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .stat .big{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--main);font-weight:600}
+  .src{font-size:.76rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="dot"></span> Vida Saludable 2026</div>
+    <h1>Mi Bienestar</h1>
+    <p class="inst">CETIS 43 · Xochitepec, Morelos</p>
+    <p class="author">Biol. Ángel Enrique Torres Álvarez</p>
+    <p class="sub">Un espacio para conocerte mejor cada semana. Registra cómo te sientes, observa tu avance, completa retos con tu familia y amigos, y encuentra calma cuando la necesites.</p>
+  </header>
+
+
+  <!-- MIS DATOS -->
+  <section class="card">
+    <h2><span class="badge">👤</span> Mis datos</h2>
+    <p class="hint">Completa una vez. Se incluirá en tu resumen y CSV.</p>
+    <div class="row" style="gap:14px; margin-top:10px;">
+      <div style="flex:1; min-width:120px;">
+        <label style="font-weight:700; font-size:.9rem; color:var(--dark); display:block; margin-bottom:4px;">Sexo</label>
+        <select id="perfilSexo" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 13px; font-family:inherit; font-size:.95rem; color:var(--ink); background:#fff;">
+          <option value="">Selecciona</option>
+          <option value="H">H (Hombre)</option>
+          <option value="M">M (Mujer)</option>
+        </select>
+      </div>
+      <div style="flex:1; min-width:120px;">
+        <label style="font-weight:700; font-size:.9rem; color:var(--dark); display:block; margin-bottom:4px;">Grupo</label>
+        <input type="text" id="perfilGrupo" maxlength="1" placeholder="Ej: A" style="text-transform:uppercase; width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 13px; font-family:inherit; font-size:.95rem; color:var(--ink);">
+      </div>
+      <div style="flex:1; min-width:120px;">
+        <label style="font-weight:700; font-size:.9rem; color:var(--dark); display:block; margin-bottom:4px;">Semestre</label>
+        <select id="perfilSemestre" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 13px; font-family:inherit; font-size:.95rem; color:var(--ink); background:#fff;">
+          <option value="">Selecciona</option>
+          <option value="1">1°</option>
+          <option value="2">2°</option>
+          <option value="3">3°</option>
+          <option value="4">4°</option>
+          <option value="5">5°</option>
+          <option value="6">6°</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn primary" id="guardarPerfil" style="margin-top:14px; max-width:280px;">Guardar mis datos</button>
+    <div class="saved" id="savedPerfil">✓ Datos guardados</div>
+  </section>
+
+  <!-- ANIMACIÓN: AMIGOS CONVIVIENDO -->
+  <div class="hero" aria-label="Tres jóvenes patinando en un parque">
+    <svg viewBox="0 0 360 185" xmlns="http://www.w3.org/2000/svg">
+      <!-- sol -->
+      <circle cx="326" cy="28" r="24" fill="#ffe08a" opacity=".4"/>
+      <circle cx="326" cy="28" r="16" fill="#ffe08a"/>
+      <!-- nubes -->
+      <ellipse cx="78" cy="22" rx="28" ry="11" fill="rgba(255,255,255,.6)"/>
+      <ellipse cx="102" cy="17" rx="18" ry="9" fill="rgba(255,255,255,.55)"/>
+      <ellipse cx="228" cy="30" rx="22" ry="9" fill="rgba(255,255,255,.5)"/>
+      <!-- suelo / parque -->
+      <path d="M0,148 Q180,132 360,148 L360,185 L0,185 Z" fill="#d6eff2"/>
+      <path d="M0,157 Q180,144 360,157 L360,185 L0,185 Z" fill="#c2e6ea"/>
+      <!-- carril de patinaje -->
+      <path d="M0,150 Q180,136 360,150" stroke="#a8d8df" stroke-width="3" fill="none" stroke-dasharray="9,7"/>
+      <!-- árbol izq (se mece) -->
+      <g transform="translate(22,148)"><g style="transform-box:fill-box;transform-origin:50% 100%;animation:sway 4.2s ease-in-out infinite">
+        <rect x="-5" y="-44" width="10" height="44" rx="4" fill="#9a7b5a"/>
+        <circle cx="0" cy="-52" r="22" fill="#7cc6a6"/>
+        <circle cx="-14" cy="-43" r="14" fill="#8fd4b4"/>
+        <circle cx="14" cy="-43" r="14" fill="#8fd4b4"/>
+      </g></g>
+      <!-- árbol der -->
+      <g transform="translate(342,148)"><g style="transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.8s ease-in-out infinite .6s">
+        <rect x="-4" y="-34" width="8" height="34" rx="3" fill="#9a7b5a"/>
+        <circle cx="0" cy="-41" r="17" fill="#7cc6a6"/>
+      </g></g>
+      <!-- banca del parque -->
+      <rect x="148" y="139" width="38" height="5" rx="2.5" fill="#b08060"/>
+      <rect x="152" y="143" width="4" height="8" rx="2" fill="#8a6040"/>
+      <rect x="178" y="143" width="4" height="8" rx="2" fill="#8a6040"/>
+      <!-- PATINADOR 1 (aqua) -->
+      <g transform="translate(70,148)"><g class="a-glide1">
+        <rect class="a-speed" x="-50" y="-32" width="18" height="4" rx="2" fill="#1f9bb0" opacity=".6"/>
+        <rect class="a-speed" x="-47" y="-22" width="13" height="3" rx="1.5" fill="#1f9bb0" opacity=".4"/>
+        <rect class="a-speed" x="-52" y="-42" width="11" height="3" rx="1.5" fill="#1f9bb0" opacity=".25"/>
+        <rect x="-21" y="-9" width="42" height="8" rx="4" fill="#1e1e2e"/>
+        <circle cx="-13" cy="-1" r="5.5" fill="#333"/><circle cx="-13" cy="-1" r="2" fill="#999"/>
+        <line x1="-13" y1="-5.5" x2="-13" y2="3.5" stroke="#666" stroke-width="1.2"/>
+        <line x1="-17.5" y1="-1" x2="-8.5" y2="-1" stroke="#666" stroke-width="1.2"/>
+        <circle cx="13" cy="-1" r="5.5" fill="#333"/><circle cx="13" cy="-1" r="2" fill="#999"/>
+        <line x1="13" y1="-5.5" x2="13" y2="3.5" stroke="#666" stroke-width="1.2"/>
+        <line x1="8.5" y1="-1" x2="17.5" y2="-1" stroke="#666" stroke-width="1.2"/>
+        <g transform="rotate(16,0,-12)">
+          <rect x="-16" y="-32" width="9" height="24" rx="4.5" fill="#f3c79b"/>
+          <rect x="4" y="-28" width="9" height="20" rx="4.5" fill="#f3c79b"/>
+          <rect x="-16" y="-37" width="29" height="12" rx="6" fill="#0e6b7d"/>
+          <rect x="-12" y="-58" width="24" height="24" rx="12" fill="#1f9bb0"/>
+          <rect x="-24" y="-62" width="8" height="20" rx="4" fill="#1f9bb0"/>
+          <rect x="14" y="-56" width="20" height="8" rx="4" fill="#1f9bb0"/>
+          <rect x="-4" y="-63" width="8" height="8" rx="4" fill="#f3c79b"/>
+          <circle cx="0" cy="-74" r="12" fill="#f3c79b"/>
+          <path d="M-11,-79 a12,12 0 0,1 22,-1 z" fill="#3a2a1a"/>
+          <rect x="-12" y="-84" width="24" height="7" rx="3.5 3.5 0 0" fill="#0e6b7d"/>
+          <rect x="8" y="-79" width="12" height="4" rx="2" fill="#0e6b7d"/>
+        </g>
+      </g></g>
+      <!-- PATINADOR 2 (coral) -->
+      <g transform="translate(183,148)"><g class="a-glide2">
+        <rect class="a-speed" x="-50" y="-34" width="18" height="4" rx="2" fill="#f4845f" opacity=".6"/>
+        <rect class="a-speed" x="-47" y="-24" width="13" height="3" rx="1.5" fill="#f4845f" opacity=".4"/>
+        <rect class="a-speed" x="-52" y="-44" width="10" height="3" rx="1.5" fill="#f4845f" opacity=".25"/>
+        <rect x="-21" y="-9" width="42" height="8" rx="4" fill="#1e1e2e"/>
+        <circle cx="-13" cy="-1" r="5.5" fill="#3a3060"/><circle cx="-13" cy="-1" r="2" fill="#999"/>
+        <line x1="-13" y1="-5.5" x2="-13" y2="3.5" stroke="#5a4a80" stroke-width="1.2"/>
+        <line x1="-17.5" y1="-1" x2="-8.5" y2="-1" stroke="#5a4a80" stroke-width="1.2"/>
+        <circle cx="13" cy="-1" r="5.5" fill="#3a3060"/><circle cx="13" cy="-1" r="2" fill="#999"/>
+        <line x1="13" y1="-5.5" x2="13" y2="3.5" stroke="#5a4a80" stroke-width="1.2"/>
+        <line x1="8.5" y1="-1" x2="17.5" y2="-1" stroke="#5a4a80" stroke-width="1.2"/>
+        <g transform="rotate(15,0,-12)">
+          <rect x="-16" y="-32" width="9" height="24" rx="4.5" fill="#e8b07e"/>
+          <rect x="4" y="-28" width="9" height="20" rx="4.5" fill="#e8b07e"/>
+          <rect x="-16" y="-37" width="29" height="12" rx="6" fill="#c06030"/>
+          <rect x="-12" y="-58" width="24" height="24" rx="12" fill="#f4845f"/>
+          <rect x="-24" y="-62" width="8" height="20" rx="4" fill="#f4845f"/>
+          <rect x="14" y="-56" width="20" height="8" rx="4" fill="#f4845f"/>
+          <rect x="-4" y="-63" width="8" height="8" rx="4" fill="#e8b07e"/>
+          <circle cx="0" cy="-74" r="12" fill="#e8b07e"/>
+          <path d="M-11,-79 a12,12 0 0,1 22,-1 z" fill="#2c2118"/>
+          <ellipse cx="-8" cy="-76" rx="5" ry="10" fill="#2c2118"/>
+        </g>
+      </g></g>
+      <!-- PATINADOR 3 (verde) -->
+      <g transform="translate(290,148)"><g class="a-glide3">
+        <rect class="a-speed" x="-50" y="-32" width="18" height="4" rx="2" fill="#3aa66b" opacity=".6"/>
+        <rect class="a-speed" x="-47" y="-22" width="13" height="3" rx="1.5" fill="#3aa66b" opacity=".4"/>
+        <rect x="-21" y="-9" width="42" height="8" rx="4" fill="#1e1e2e"/>
+        <circle cx="-13" cy="-1" r="5.5" fill="#333"/><circle cx="-13" cy="-1" r="2" fill="#aaa"/>
+        <line x1="-13" y1="-5.5" x2="-13" y2="3.5" stroke="#666" stroke-width="1.2"/>
+        <line x1="-17.5" y1="-1" x2="-8.5" y2="-1" stroke="#666" stroke-width="1.2"/>
+        <circle cx="13" cy="-1" r="5.5" fill="#333"/><circle cx="13" cy="-1" r="2" fill="#aaa"/>
+        <line x1="13" y1="-5.5" x2="13" y2="3.5" stroke="#666" stroke-width="1.2"/>
+        <line x1="8.5" y1="-1" x2="17.5" y2="-1" stroke="#666" stroke-width="1.2"/>
+        <g transform="rotate(15,0,-12)">
+          <rect x="-16" y="-32" width="9" height="24" rx="4.5" fill="#f3c79b"/>
+          <rect x="4" y="-28" width="9" height="20" rx="4.5" fill="#f3c79b"/>
+          <rect x="-16" y="-37" width="29" height="12" rx="6" fill="#2a8655"/>
+          <rect x="-12" y="-58" width="24" height="24" rx="12" fill="#3aa66b"/>
+          <rect x="-24" y="-62" width="8" height="20" rx="4" fill="#3aa66b"/>
+          <rect x="14" y="-56" width="20" height="8" rx="4" fill="#3aa66b"/>
+          <rect x="-4" y="-63" width="8" height="8" rx="4" fill="#f3c79b"/>
+          <circle cx="0" cy="-74" r="12" fill="#f3c79b"/>
+          <path d="M-11,-79 a12,12 0 0,1 22,-1 z" fill="#4a3a6a"/>
+          <circle cx="0" cy="-84" r="5" fill="#4a3a6a"/>
+        </g>
+      </g></g>
+    </svg>
+  </div>
+
+  <!-- BOTÓN DE PÁNICO / AYUDA -->
+  <button class="panic" id="openHelp">
+    <span class="pic">🆘</span>
+    <span>Ayuda urgente
+      <small>Violencia en el noviazgo · ¿estás en riesgo? Pulsa aquí</small>
+    </span>
+  </button>
+
+  <!-- TERMÓMETRO -->
+  <section class="card">
+    <h2><span class="badge">🌡️</span> Termómetro de la semana</h2>
+    <p class="hint">Mueve cada barra según cómo te sentiste esta semana. <b>Entre más bajo, mejor.</b></p>
+
+    <div class="metric">
+      <div class="top"><span class="name">😟 Ansiedad</span><span class="val" id="vAns">0</span></div>
+      <input type="range" id="rAns" min="0" max="15" value="0">
+      <div class="scalehint"><span>Nada (0)</span><span>Mucha (15)</span></div>
+    </div>
+    <div class="metric">
+      <div class="top"><span class="name">😫 Estrés</span><span class="val" id="vEst">0</span></div>
+      <input type="range" id="rEst" min="0" max="15" value="0">
+      <div class="scalehint"><span>Nada (0)</span><span>Mucho (15)</span></div>
+    </div>
+    <div class="metric">
+      <div class="top"><span class="name">🤝 Problemas de convivencia</span><span class="val" id="vCon">0</span></div>
+      <input type="range" id="rCon" min="0" max="15" value="0">
+      <div class="scalehint"><span>Ninguno (0)</span><span>Muchos (15)</span></div>
+    </div>
+
+    <p class="hint" style="margin-top:18px">¿Cómo está tu ánimo hoy?</p>
+    <div class="moods" id="moods">
+      <div class="mood" data-m="5">😄<small>Genial</small></div>
+      <div class="mood" data-m="4">🙂<small>Bien</small></div>
+      <div class="mood" data-m="3">😐<small>Normal</small></div>
+      <div class="mood" data-m="2">😕<small>Bajo</small></div>
+      <div class="mood" data-m="1">😢<small>Mal</small></div>
+    </div>
+
+    <div style="margin-top:20px"><button class="btn primary" id="save">Guardar registro de esta semana</button></div>
+  </section>
+
+  <!-- AVANCE -->
+  <section class="card">
+    <h2><span class="badge">📈</span> Mi avance</h2>
+    <p class="hint">Cada punto es una semana. Si las líneas bajan con el tiempo, ¡vas mejorando!</p>
+    <div class="chartbox"><canvas id="chart" width="700" height="360"></canvas></div>
+    <div class="legend">
+      <span><i style="background:#1f9bb0"></i>Ansiedad</span>
+      <span><i style="background:#f4845f"></i>Estrés</span>
+      <span><i style="background:#3aa66b"></i>Convivencia</span>
+    </div>
+    <div id="noData" class="empty">Aún no hay registros. Guarda tu primera semana arriba. 🙂</div>
+  </section>
+
+  <!-- RETOS FAMILIA -->
+  <section class="card">
+    <h2><span class="badge">🏡</span> Mis retos en familia</h2>
+    <p class="hint">Actividades sencillas para hacer en casa. Marca las que ya cumpliste.</p>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+      <div style="flex:1" class="progress"><div id="bar"></div></div>
+      <div class="pct" id="pct">0%</div>
+    </div>
+    <div id="retos"></div>
+  </section>
+
+  <!-- RETOS AMIGOS / ENTORNO -->
+  <section class="card">
+    <h2><span class="badge">🧑‍🤝‍🧑</span> Retos con amigos y mi entorno</h2>
+    <p class="hint">Pequeñas acciones para sentirte más acompañado y mejorar la convivencia en el plantel.</p>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+      <div style="flex:1" class="progress"><div id="barA"></div></div>
+      <div class="pct" id="pctA">0%</div>
+    </div>
+    <div id="retosA"></div>
+  </section>
+
+  <!-- CAJA DE CALMA -->
+  <section class="card">
+    <h2><span class="badge">🧘</span> Caja de calma</h2>
+    <p class="hint">¿Te sientes nervioso, abrumado o triste? Prueba una de estas. Solo toman unos minutos.</p>
+
+    <div class="tool" id="t-resp">
+      <div class="head"><span class="ic">🌬️</span> Respiración 4-7-8 <span class="arr">›</span></div>
+      <div class="body">
+        <p>Sigue el círculo: <b>inhala 4 segundos, sostén 7 y exhala 8</b>. Repite unas 4 veces.</p>
+        <div class="breathe">
+          <div class="bcircle" id="bcircle">Prepárate</div>
+          <button class="btn primary" id="bStart" style="max-width:240px">Empezar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool" id="t-ancla">
+      <div class="head"><span class="ic">🖐️</span> Anclaje 5-4-3-2-1 <span class="arr">›</span></div>
+      <div class="body">
+        <p>Cuando tu mente va muy rápido, vuelve al presente nombrando:</p>
+        <ul>
+          <li><b>5</b> cosas que puedes <b>ver</b></li>
+          <li><b>4</b> cosas que puedes <b>oír</b></li>
+          <li><b>3</b> cosas que puedes <b>tocar</b></li>
+          <li><b>2</b> cosas que puedes <b>oler</b></li>
+          <li><b>1</b> cosa que puedes <b>saborear</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tool" id="t-tension">
+      <div class="head"><span class="ic">💪</span> Suelta la tensión <span class="arr">›</span></div>
+      <div class="body">
+        <ol>
+          <li>Sube los hombros hacia las orejas y aprieta 5 segundos.</li>
+          <li>Suéltalos de golpe y siente cómo bajan.</li>
+          <li>Repite con las manos: cierra los puños, aprieta y suelta.</li>
+          <li>Termina con tres respiraciones lentas.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="tool" id="t-mueve">
+      <div class="head"><span class="ic">🚶</span> Muévete y reconéctate <span class="arr">›</span></div>
+      <div class="body">
+        <ul>
+          <li>Camina un par de minutos, aunque sea en el salón o el pasillo.</li>
+          <li>Toma un vaso de agua despacio.</li>
+          <li>Estírate y mira por la ventana algo lejano.</li>
+          <li>Si puedes, habla con alguien de confianza sobre cómo te sientes.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUMEN / EVIDENCIA -->
+  <section class="card">
+    <h2><span class="badge">🧾</span> Mi resumen</h2>
+    <p class="hint">Genera un resumen para mostrar a tu maestro o maestra como evidencia (puedes tomarle captura).</p>
+    <div class="row">
+      <button class="btn ghost" id="genSum">Generar resumen</button>
+      <button class="btn ghost" id="csv">Descargar mis datos (CSV)</button>
+    </div>
+    <div style="margin-top:14px; border-top:1px solid var(--line); padding-top:14px;">
+      <p class="hint" style="margin-bottom:8px;"><b>📤 Enviar a Google Sheets</b> — Para que tu maestro reciba los datos en vivo.</p>
+
+      <div id="sheetSetup">
+        <label style="font-weight:700; font-size:.9rem; color:var(--dark); display:block; margin-bottom:4px;">Pega aquí la URL que te dio tu maestro/a</label>
+        <input type="text" id="sheetUrl" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:11px 13px; font-family:inherit; font-size:.95rem; color:var(--ink); margin-bottom:10px;">
+        <p class="hint" style="margin-bottom:10px;">La URL termina en <b>/exec</b>. Solo se pega una vez y se guarda automáticamente.</p>
+        <div class="row">
+          <button class="btn primary" id="sendSheet" style="flex:2; min-width:180px;">Enviar mis datos a Sheets 📤</button>
+          <button class="btn ghost tiny" id="saveSheetUrl" style="flex:1; min-width:100px;">Guardar URL</button>
+        </div>
+      </div>
+
+      <!-- Formulario oculto para envio cross-origin sin CORS -->
+      <form id="sheetForm" method="POST" target="_blank" style="display:none;" enctype="text/plain">
+        <input type="hidden" name="sexo" id="formSexo">
+        <input type="hidden" name="grupo" id="formGrupo">
+        <input type="hidden" name="semestre" id="formSemestre">
+        <input type="hidden" name="entries" id="formEntries">
+        <input type="hidden" name="retosFamilia" id="formRetosFamilia">
+        <input type="hidden" name="retosAmigos" id="formRetosAmigos">
+        <input type="hidden" name="totalRetosFamilia" id="formTotalRetosFamilia">
+        <input type="hidden" name="totalRetosAmigos" id="formTotalRetosAmigos">
+      </form>
+
+      <div class="saved" id="savedSheet" style="display:none; margin-top:6px;">✓ Listo — se abrio una pestaña con tu envio. Si no se abrio, permite ventanas emergentes.</div>
+      <div id="sheetError" style="display:none; color:#d1495b; font-weight:700; font-size:.85rem; margin-top:6px;"></div>
+    </div>
+    <pre class="summary" id="summary"></pre>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" id="reset" style="color:#d1495b;border-color:#f0c4cc">Borrar todos mis datos</button>
+    </div>
+  </section>
+
+  <!-- ¿NECESITO AYUDA? -->
+  <section class="help">
+    <h2><span class="badge">💙</span> ¿Necesito ayuda?</h2>
+    <div class="warm">
+      Esta página es para conocerte mejor, <b>no es un diagnóstico</b>. Si te sientes muy mal, abrumado
+      o en peligro, <b>no estás solo</b>. Pedir ayuda es de personas valientes. Habla con alguien hoy mismo.
+    </div>
+
+    <div class="res">
+      <span class="ic">💜</span>
+      <div class="info"><b>Línea de las Mujeres</b>
+        <span class="num">079</span>
+        <small>Orientación jurídica, psicológica y canalización al 911. Gratuita y confidencial, 24 h.</small>
+      </div>
+    </div>
+    <div class="res">
+      <span class="ic">🔵</span>
+      <div class="info"><b>Línea Sin Violencia</b>
+        <span class="num">800 108 4053</span>
+        <small>Gratuita, confidencial, 24 h. Escucha, orientación y apoyo.</small>
+      </div>
+    </div>
+    <div class="res" style="margin-top:14px">
+      <span class="ic">📞</span>
+      <div class="info"><b>Línea de la Vida</b> (Secretaría de Salud · gratuita, 24 h)
+        <span class="num">800 911 2000</span>
+        <small>Orientación en salud mental: ansiedad, tristeza, estrés y más.</small>
+      </div>
+    </div>
+    <div class="res">
+      <span class="ic">🚑</span>
+      <div class="info"><b>Emergencias</b> <span class="num">911</span>
+        <small>Si hay peligro inmediato para ti o para alguien más.</small>
+      </div>
+    </div>
+    <div class="res">
+      <span class="ic">🏥</span>
+      <div class="info"><b>UNEME-CECOSAMA Xochitepec</b>
+        <span class="num">777 365 7003</span>
+        <small>Leopoldo Reynoso s/n, Esq. Rep. de Guatemala, Col. Centro, C.P. 62790 · Lun–Vie 8:00–16:00 hrs · Psic. Lizette América Román Toledo · <a href="mailto:cecosamaxochitepec@gmail.com" style="color:var(--main)">cecosamaxochitepec@gmail.com</a></small>
+      </div>
+    </div>
+    <div class="res">
+      <span class="ic">🎓</span>
+      <div class="info"><b>Clínica de Servicios Psicológicos · UAEM Morelos (CITPSI)</b>
+        <small><a href="https://www.uaem.mx/organizacion-institucional/unidades-academicas/centros-de-investigacion/citpsi/clinica-de-servicios-psicologicos" target="_blank" style="color:var(--main)">Ver servicios disponibles en la UAEM →</a></small>
+      </div>
+    </div>
+    <div class="res">
+      <span class="ic">🏡</span>
+      <div class="info"><b>Un adulto de confianza</b>
+        <small>Tu familia, un maestro o alguien cercano que te escuche.</small>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="priv">🔒 Tus datos se guardan solo en este dispositivo</span>
+    <p style="margin-top:10px">Programa de Bienestar Socioemocional · Vida Saludable 2026 · CETIS 43, Xochitepec, Morelos · Biol. Ángel Enrique Torres Álvarez</p>
+  </footer>
+</div>
+
+<!-- MODAL DE AYUDA: VIOLENCIA EN EL NOVIAZGO -->
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-label="Ayuda: violencia en el noviazgo">
+  <div class="modal-inner">
+    <div class="modal-top">
+      <h2>🛟 Ayuda y prevención</h2>
+      <button class="qexit" id="quickExit" title="Salir rápido a una página neutral">✕ Salir rápido</button>
+      <button class="closex" id="closeHelp" title="Cerrar">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- BOTÓN URGENTE -->
+      <div class="urgent" id="urgent">
+        <button class="ub" id="urgentBtn">⚠️ Botón de ayuda urgente</button>
+        <div class="uhint">Pulsa si estás en peligro inmediato — te mostramos a quién llamar y qué hacer.</div>
+        <div class="emergency" id="emergency">
+          <a class="callbtn" href="tel:911"><span class="ic">🚑</span><span><b>Emergencias</b> · peligro inmediato<br><span class="num">911</span></span></a>
+          <a class="callbtn" href="tel:079"><span class="ic">💜</span><span><b>Línea de las Mujeres</b> · gratuita, 24 h<br><span class="num">079</span></span></a>
+          <a class="callbtn" href="tel:8001084053"><span class="ic">🔵</span><span><b>Línea Sin Violencia</b> · gratuita, 24 h<br><span class="num">800 108 4053</span></span></a>
+          <a class="callbtn" href="tel:8009112000"><span class="ic">📞</span><span><b>Línea de la Vida</b> · salud mental, 24 h<br><span class="num">800 911 2000</span></span></a>
+          <a class="callbtn" href="tel:7773657003"><span class="ic">🏥</span><span><b>UNEME-CECOSAMA Xochitepec</b><br><span class="num">777 365 7003</span></span></a>
+          <ol class="steps">
+            <li>Ponte a salvo: aléjate del lugar o busca un espacio con más personas.</li>
+            <li>Llama al 911 si hay peligro ahora, o pide a alguien que llame por ti.</li>
+            <li>Avisa a un adulto de confianza o a orientación lo antes posible.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" data-p="p1">Detectar riesgo</button>
+        <button class="tab" data-p="p2">Señales de alerta</button>
+        <button class="tab" data-p="p3">Reportar situación</button>
+        <button class="tab" data-p="p4">Estadísticas</button>
+      </div>
+
+      <!-- P1: CUESTIONARIO -->
+      <div class="pane active" id="p1">
+        <p style="font-weight:700;margin-bottom:2px">Cuestionario de riesgo — violencia en el noviazgo</p>
+        <p class="hint">Responde con honestidad. Tus respuestas <b>no se guardan</b> ni se envían a ningún lado.</p>
+        <div id="quiz"></div>
+        <button class="btn primary" id="quizCalc" style="margin-top:6px">Ver resultado</button>
+        <div class="result" id="quizResult"></div>
+      </div>
+
+      <!-- P2: SEÑALES -->
+      <div class="pane" id="p2">
+        <p style="font-weight:700">¿Cómo reconocer una relación que hace daño?</p>
+        <p class="hint">El amor no controla, no humilla ni da miedo. Estas son señales de alerta:</p>
+        <ul class="signlist">
+          <li>🔒 <b>Control:</b> revisa tu teléfono, redes o decide con quién hablas o cómo te vistes.</li>
+          <li>🚷 <b>Aislamiento:</b> te aleja de tus amigos o tu familia.</li>
+          <li>🗯️ <b>Humillación:</b> te insulta, se burla o te hace sentir que no vales.</li>
+          <li>😨 <b>Miedo:</b> mides lo que dices o haces por temor a su reacción.</li>
+          <li>💢 <b>Celos extremos</b> disfrazados de "amor" o de preocupación.</li>
+          <li>✋ <b>Violencia física:</b> empujones, jalones, golpes (aunque sea "una vez").</li>
+          <li>📵 <b>Amenazas o chantaje:</b> "si me dejas…", o presión para hacer cosas que no quieres.</li>
+        </ul>
+        <p class="hint" style="margin-top:8px">Si reconoces varias, no estás exagerando y no es tu culpa. Buscar apoyo es lo más sano.</p>
+      </div>
+
+      <!-- P3: REPORTAR -->
+      <div class="pane" id="p3">
+        <p style="font-weight:700">¿Qué puedo hacer?</p>
+        <ol class="steps" style="margin-top:6px">
+          <li>Habla con alguien de confianza: familia, un maestro o el área de orientación.</li>
+          <li>Guarda evidencia si es seguro hacerlo (mensajes, fotos) en un lugar privado.</li>
+          <li>Llama a una línea de apoyo: te escuchan y te orientan gratis y en confianza.</li>
+          <li>Si hay peligro, marca al 911 o usa el botón de ayuda urgente de arriba.</li>
+        </ol>
+        <div class="res" style="margin-top:14px"><span class="ic">💜</span><div class="info"><b>Línea de las Mujeres</b> <span class="num">079</span><small>Gratuita, confidencial, 24 h. Orientación jurídica, psicológica y canalización al 911 en emergencias.</small></div></div>
+        <div class="res"><span class="ic">🔵</span><div class="info"><b>Línea Sin Violencia</b> <span class="num">800 108 4053</span><small>Gratuita y confidencial, 24 h. Escucha, orientación y apoyo.</small></div></div>
+        <div class="res"><span class="ic">📞</span><div class="info"><b>Línea de la Vida</b> <span class="num">800 911 2000</span><small>Apoyo emocional en salud mental, 24 h.</small></div></div>
+        <div class="res"><span class="ic">🏥</span><div class="info"><b>UNEME-CECOSAMA Xochitepec</b> <span class="num">777 365 7003</span><small>Leopoldo Reynoso s/n, Esq. Rep. de Guatemala, Col. Centro · Lun–Vie 8:00–16:00 hrs · Psic. Lizette América Román Toledo</small></div></div>
+        <div class="res"><span class="ic">🎓</span><div class="info"><b>Clínica de Servicios Psicológicos · UAEM Morelos</b><small><a href="https://www.uaem.mx/organizacion-institucional/unidades-academicas/centros-de-investigacion/citpsi/clinica-de-servicios-psicologicos" target="_blank" style="color:var(--main)">Ver servicios disponibles →</a></small></div></div>
+        <p class="hint" style="margin-top:10px">Puedes anotar lo que te pasa para llevarlo a orientación. <b>No se guarda en la página.</b></p>
+        <textarea id="repNote" rows="3" style="width:100%;border:2px solid var(--line);border-radius:12px;padding:11px;font-family:inherit;font-size:.92rem" placeholder="Escribe aquí si quieres ordenar tus ideas…"></textarea>
+      </div>
+
+      <!-- P4: ESTADÍSTICAS -->
+      <div class="pane" id="p4">
+        <p style="font-weight:700">Para que sepas que no estás solo</p>
+        <div class="stat"><span class="big">3 de cada 10</span><br>adolescentes en el mundo viven algún tipo de violencia en el noviazgo.</div>
+        <div class="stat">En México, entre adolescentes de 15 a 17 años: <b>76 %</b> ha vivido violencia psicológica, <b>17 %</b> sexual y <b>15 %</b> física.</div>
+        <div class="stat">La violencia puede afectar a <b>cualquier persona</b>, sin importar su género. Reconocerla es el primer paso para frenarla.</div>
+        <p class="src">Fuentes: Organización Mundial de la Salud (OMS); Encuesta Nacional sobre Violencia en el Noviazgo (ENVINOV, IMJUVE); INEGI, ENDIREH 2021.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY='miBienestar_v1';
+const RETOS=[
+  {t:"Caminata en familia",d:"Salgan a caminar 20 min juntos, sin prisas."},
+  {t:"Cena sin pantallas",d:"Una comida o cena conversando, con los celulares guardados."},
+  {t:"3 cosas buenas",d:"Cada quien comparte 3 cosas buenas de su día."},
+  {t:"Ayuda en casa",d:"Apoya en una tarea del hogar por iniciativa propia."},
+  {t:"Dormir mejor",d:"Apaga pantallas 30 min antes de dormir, 3 noches."},
+  {t:"Pedir o dar un abrazo",d:"Un gesto de afecto con alguien de tu familia."},
+  {t:"Hablar de mis metas",d:"Cuéntale a tu familia una meta tuya para este semestre."},
+  {t:"Respira en familia",d:"Hagan juntos 1 minuto de respiración lenta."}
+];
+const RETOS_AMIGOS=[
+  {t:"Incluye a alguien",d:"Invita a tu mesa o equipo a alguien que esté solo o sea nuevo."},
+  {t:"Un cumplido sincero",d:"Dile algo positivo y honesto a un compañero o compañera."},
+  {t:"Equipo de estudio",d:"Organiza o únete a un grupo para repasar antes de un examen."},
+  {t:"¿Cómo estás de verdad?",d:"Pregúntale a un amigo cómo se siente y escúchalo sin juzgar."},
+  {t:"Agradece a alguien del plantel",d:"A un maestro, prefecto o personal que te haya apoyado."},
+  {t:"Tiempo sin pantallas",d:"Hagan algo divertido juntos (deporte, música, plática) sin celular."},
+  {t:"Tiende un puente",d:"Si hubo un malentendido con alguien, busca resolverlo hablando."},
+  {t:"Únete a algo",d:"Participa en un club, taller, equipo o actividad del plantel."}
+];
+
+let state=load();
+function load(){ try{var s=JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){var s=fresh();}
+  if(!s.entries)s.entries=[]; if(!s.retos)s.retos=new Array(RETOS.length).fill(false);
+  if(!s.retosA)s.retosA=new Array(RETOS_AMIGOS.length).fill(false);
+  if(!s.perfil)s.perfil={sexo:'',grupo:'',semestre:''}; return s; }
+function fresh(){return {entries:[],mood:0,retos:new Array(RETOS.length).fill(false),retosA:new Array(RETOS_AMIGOS.length).fill(false),perfil:{sexo:'',grupo:'',semestre:''}};}
+function persist(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
+
+/* sliders */
+const sl={Ans:['rAns','vAns'],Est:['rEst','vEst'],Con:['rCon','vCon']};
+Object.values(sl).forEach(([r,v])=>{const R=document.getElementById(r),V=document.getElementById(v);
+  R.addEventListener('input',()=>{V.textContent=R.value; V.style.color=color(+R.value);});});
+function color(n){return n<=5?'#3aa66b':n<=10?'#e0a800':'#d1495b';}
+
+/* mood */
+document.querySelectorAll('.mood').forEach(m=>m.addEventListener('click',()=>{
+  document.querySelectorAll('.mood').forEach(x=>x.classList.remove('sel'));
+  m.classList.add('sel'); state.mood=+m.dataset.m;
+}));
+
+/* save week */
+document.getElementById('save').addEventListener('click',()=>{
+  const e={
+    date:new Date().toISOString().slice(0,10),
+    ans:+document.getElementById('rAns').value,
+    est:+document.getElementById('rEst').value,
+    con:+document.getElementById('rCon').value,
+    mood:state.mood||0
+  };
+  state.entries.push(e); persist(); draw(); 
+  document.getElementById('save').textContent='✓ ¡Registro guardado!';
+  setTimeout(()=>document.getElementById('save').textContent='Guardar registro de esta semana',1600);
+});
+
+/* retos (genérico para familia y amigos) */
+function renderList(list, flags, contId, barId, pctId){
+  const cont=document.getElementById(contId); cont.innerHTML='';
+  list.forEach((r,i)=>{
+    const el=document.createElement('div');
+    el.className='reto'+(flags[i]?' done':'');
+    el.innerHTML=`<div class="check">${flags[i]?'✓':''}</div>
+      <div class="txt">${r.t}<small>${r.d}</small></div>`;
+    el.addEventListener('click',()=>{flags[i]=!flags[i];persist();renderAll();});
+    cont.appendChild(el);
+  });
+  const done=flags.filter(Boolean).length, pct=Math.round(done/list.length*100);
+  document.getElementById(barId).style.width=pct+'%';
+  document.getElementById(pctId).textContent=pct+'%';
+}
+function renderAll(){
+  renderList(RETOS,state.retos,'retos','bar','pct');
+  renderList(RETOS_AMIGOS,state.retosA,'retosA','barA','pctA');
+}
+
+/* chart (vanilla canvas) */
+const cv=document.getElementById('chart'), ctx=cv.getContext('2d');
+function draw(){
+  const E=state.entries; const nd=document.getElementById('noData');
+  nd.style.display=E.length?'none':'block';
+  cv.style.display=E.length?'block':'none';
+  if(!E.length)return;
+  const W=cv.width,H=cv.height,pad=44;
+  ctx.clearRect(0,0,W,H);
+  // grid + y labels (0..15)
+  ctx.strokeStyle='#e3eff2';ctx.fillStyle='#5a7d8c';ctx.font='12px Nunito,sans-serif';ctx.lineWidth=1;
+  for(let v=0;v<=15;v+=5){const y=H-pad-(v/15)*(H-2*pad);
+    ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad/2,y);ctx.stroke();
+    ctx.fillText(v,pad-22,y+4);}
+  const n=E.length;
+  const x=i=> n===1? (pad+(W-pad-pad/2-pad))/1 + pad : pad + i*((W-pad-pad/2)/(n-1));
+  const xPos=i=> n===1? (pad+(W-pad/2))/2 : pad + i*((W-pad-pad/2)/(n-1));
+  const y=v=> H-pad-(v/15)*(H-2*pad);
+  const series=[['ans','#1f9bb0'],['est','#f4845f'],['con','#3aa66b']];
+  series.forEach(([k,col])=>{
+    ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();
+    E.forEach((e,i)=>{const X=xPos(i),Y=y(e[k]); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);});
+    ctx.stroke();
+    ctx.fillStyle=col;
+    E.forEach((e,i)=>{const X=xPos(i),Y=y(e[k]);ctx.beginPath();ctx.arc(X,Y,4.5,0,7);ctx.fill();});
+  });
+  // x labels (week index)
+  ctx.fillStyle='#5a7d8c';ctx.textAlign='center';
+  E.forEach((e,i)=>{ctx.fillText('S'+(i+1),xPos(i),H-pad+20);});
+  ctx.textAlign='left';
+}
+
+/* summary */
+document.getElementById('genSum').addEventListener('click',()=>{
+  const E=state.entries, done=state.retos.filter(Boolean).length, doneA=state.retosA.filter(Boolean).length;
+  const p=state.perfil||{sexo:'',grupo:'',semestre:''};
+  const box=document.getElementById('summary'); box.style.display='block';
+  if(!E.length){box.textContent='Aún no tienes registros guardados.';return;}
+  const last=E[E.length-1], first=E[0];
+  const dlt=v=>{const d=last[v]-first[v];return d>0?('+'+d):d;};
+  box.textContent=
+`RESUMEN DE MI BIENESTAR
+Sexo: ${p.sexo||'No especificado'} | Grupo: ${p.grupo||'No especificado'} | Semestre: ${p.semestre||'No especificado'}
+Semanas registradas: ${E.length}
+Retos en familia cumplidos: ${done} de ${RETOS.length}
+Retos con amigos/entorno cumplidos: ${doneA} de ${RETOS_AMIGOS.length}
+
+Primera semana  → Ansiedad ${first.ans} · Estrés ${first.est} · Convivencia ${first.con}
+Última semana   → Ansiedad ${last.ans} · Estrés ${last.est} · Convivencia ${last.con}
+Cambio (última - primera): Ansiedad ${dlt('ans')} · Estrés ${dlt('est')} · Convivencia ${dlt('con')}
+(Recuerda: que los números BAJEN es señal de mejora.)`;
+});
+
+/* csv */
+document.getElementById('csv').addEventListener('click',()=>{
+  const p=state.perfil||{sexo:'',grupo:'',semestre:''};
+  let rows=['\uFEFF'];
+  rows.push('SEXO,GRUPO,SEMESTRE');
+  rows.push(`${p.sexo||''},${p.grupo||''},${p.semestre||''}`);
+  rows.push('');
+  rows.push('SEMANA,FECHA,ANSIEDAD,ESTRES,CONVIVENCIA,ANIMOS');
+  state.entries.forEach((e,i)=>rows.push(`${i+1},${e.date},${e.ans},${e.est},${e.con},${e.mood}`));
+  const done=state.retos.filter(Boolean).length;
+  const doneA=state.retosA.filter(Boolean).length;
+  rows.push('');
+  rows.push(`RETOS_FAMILIA_CUMPLIDOS,${done},DE,${RETOS.length}`);
+  rows.push(`RETOS_AMIGOS_CUMPLIDOS,${doneA},DE,${RETOS_AMIGOS.length}`);
+  const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='mi_bienestar.csv';a.click();
+});
+
+/* reset */
+document.getElementById('reset').addEventListener('click',()=>{
+  if(confirm('¿Seguro que quieres borrar TODOS tus registros y retos? Esta acción no se puede deshacer.')){
+    state=fresh(); persist();renderAll();draw();
+    document.getElementById('summary').style.display='none';
+    document.querySelectorAll('.mood').forEach(x=>x.classList.remove('sel'));
+  }
+});
+
+/* caja de calma: acordeón */
+document.querySelectorAll('.tool .head').forEach(h=>h.addEventListener('click',()=>{
+  h.parentElement.classList.toggle('open');
+}));
+
+/* respiración 4-7-8 guiada */
+let bTimers=[], bRunning=false;
+const bc=document.getElementById('bcircle'), bBtn=document.getElementById('bStart');
+function stopBreath(){bRunning=false;bTimers.forEach(clearTimeout);bTimers=[];
+  bc.style.transition='transform .6s';bc.style.transform='scale(.7)';bc.textContent='Prepárate';bBtn.textContent='Empezar';}
+function cycle(){
+  if(!bRunning)return;
+  bc.style.transition='transform 4s ease-in-out';bc.style.transform='scale(1.55)';bc.textContent='Inhala…';
+  bTimers.push(setTimeout(()=>{ if(!bRunning)return; bc.style.transition='transform .2s';bc.textContent='Sostén…';
+    bTimers.push(setTimeout(()=>{ if(!bRunning)return; bc.style.transition='transform 8s ease-in-out';bc.style.transform='scale(.7)';bc.textContent='Exhala…';
+      bTimers.push(setTimeout(cycle,8000)); },7000)); },4000));
+}
+bBtn.addEventListener('click',()=>{ if(bRunning){stopBreath();} else {bRunning=true;bBtn.textContent='Detener';cycle();} });
+
+/* ---- MODAL DE AYUDA ---- */
+const modal=document.getElementById('helpModal');
+document.getElementById('openHelp').addEventListener('click',()=>{modal.classList.add('show');document.body.style.overflow='hidden';});
+function closeModal(){modal.classList.remove('show');document.body.style.overflow='';}
+document.getElementById('closeHelp').addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+/* salida rápida */
+document.getElementById('quickExit').addEventListener('click',()=>{location.replace('https://www.google.com');});
+/* botón urgente */
+document.getElementById('urgentBtn').addEventListener('click',()=>{document.getElementById('urgent').classList.toggle('open');});
+/* tabs */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); document.getElementById(t.dataset.p).classList.add('active');
+}));
+
+/* ---- CUESTIONARIO (no se guarda) ---- */
+const QUIZ=[
+  {q:"1. ¿Tu pareja te ha golpeado, empujado o ejercido fuerza física?",
+   o:[["Sí, más de una vez",3,"fis"],["Una vez",2,"fis"],["No",0]]},
+  {q:"2. ¿Te ha amenazado con hacerte daño si lo/la dejas?",
+   o:[["Sí, con violencia grave",3,"grave"],["Sí, con amenazas verbales",2],["No",0]]},
+  {q:"3. ¿Te controla el teléfono, redes sociales o dónde vas?",
+   o:[["Sí, constantemente",2],["A veces",1],["No",0]]},
+  {q:"4. ¿Te insulta, humilla o te hace sentir que no vales?",
+   o:[["Frecuentemente",2],["En ocasiones",1],["No",0]]},
+  {q:"5. ¿Sientes miedo de decirle algo por cómo puede reaccionar?",
+   o:[["Sí, con frecuencia",2],["A veces",1],["No",0]]}
+];
+const answers={};
+const quizBox=document.getElementById('quiz');
+QUIZ.forEach((item,qi)=>{
+  const d=document.createElement('div'); d.className='q';
+  const t=document.createElement('div'); t.className='qt'; t.textContent=item.q; d.appendChild(t);
+  const opts=document.createElement('div'); opts.className='opts';
+  item.o.forEach((o,oi)=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o[0];
+    b.addEventListener('click',()=>{
+      answers[qi]={val:o[1],flag:o[2]||null};
+      opts.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+    });
+    opts.appendChild(b);
+  });
+  d.appendChild(opts); quizBox.appendChild(d);
+});
+document.getElementById('quizCalc').addEventListener('click',()=>{
+  const res=document.getElementById('quizResult');
+  if(Object.keys(answers).length<QUIZ.length){
+    res.className='result media show';
+    res.innerHTML='<h4>Falta responder</h4>Por favor contesta las 5 preguntas para ver tu resultado.';
+    res.scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+  let total=0,fis=false,grave=false;
+  Object.values(answers).forEach(a=>{total+=a.val; if(a.flag==='fis')fis=true; if(a.flag==='grave')grave=true;});
+  const recursos='<div style="margin-top:10px"><b>Pide apoyo:</b> Línea Sin Violencia <b>800 108 4053</b> · Línea de la Vida <b>800 911 2000</b> · Emergencias <b>911</b>. También puedes acudir a orientación del plantel o a un adulto de confianza.</div>';
+  let cls,html;
+  if(fis||grave||total>=7){
+    cls='alta';
+    html='<h4>⚠️ Hay señales de riesgo importante</h4>Lo que describes incluye situaciones serias. <b>Esto no es tu culpa</b> y tu seguridad es lo primero. No tienes que resolverlo a solas: busca ayuda hoy mismo.'+recursos;
+  } else if(total>=3){
+    cls='media';
+    html='<h4>Hay algunas señales para tomar en cuenta</h4>Algunas cosas que describes pueden hacerte daño con el tiempo. Mereces una relación que te haga sentir bien y segura. Hablarlo con alguien de confianza puede ayudarte.'+recursos;
+  } else {
+    cls='baja';
+    html='<h4>No aparecen señales claras de riesgo</h4>Qué bien. Recuerda que el respeto, la libertad y la confianza son la base de una relación sana. Si algo cambia o tienes dudas, aquí estarás acompañado.'+recursos;
+  }
+  html+='<div class="src" style="margin-top:10px">Esto es una guía de autoconocimiento, no un diagnóstico.</div>';
+  res.className='result '+cls+' show'; res.innerHTML=html;
+  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+
+
+/* perfil */
+const pSexo=document.getElementById('perfilSexo'), pGrupo=document.getElementById('perfilGrupo'), pSem=document.getElementById('perfilSemestre');
+function loadPerfil(){
+  if(state.perfil){
+    pSexo.value=state.perfil.sexo||'';
+    pGrupo.value=state.perfil.grupo||'';
+    pSem.value=state.perfil.semestre||'';
+  }
+}
+document.getElementById('guardarPerfil').addEventListener('click',()=>{
+  state.perfil={sexo:pSexo.value,grupo:pGrupo.value.toUpperCase(),semestre:pSem.value};
+  persist();
+  const sp=document.getElementById('savedPerfil'); sp.style.display='block';
+  setTimeout(()=>sp.style.display='none',2000);
+});
+
+loadPerfil();
+
+/* ---- GOOGLE SHEETS INTEGRATION ---- */
+const sheetUrlInput = document.getElementById('sheetUrl');
+const SHEET_URL_KEY = 'miBienestar_sheetUrl';
+
+// Cargar URL guardada
+(function loadSheetUrl(){
+  try { const u = localStorage.getItem(SHEET_URL_KEY); if(u) sheetUrlInput.value = u; } catch(e){}
+})();
+
+document.getElementById('saveSheetUrl').addEventListener('click', () => {
+  localStorage.setItem(SHEET_URL_KEY, sheetUrlInput.value.trim());
+  const sp = document.getElementById('savedSheet');
+  sp.textContent = '✓ URL guardada'; sp.style.display = 'block'; sp.style.color = 'var(--good)';
+  setTimeout(() => sp.style.display = 'none', 2000);
+});
+
+document.getElementById('sendSheet').addEventListener('click', async () => {
+  const url = sheetUrlInput.value.trim();
+  const errBox = document.getElementById('sheetError');
+  const okBox = document.getElementById('savedSheet');
+  errBox.style.display = 'none'; okBox.style.display = 'none';
+
+  if (!url) { errBox.textContent = 'Pega primero la URL del Web App.'; errBox.style.display = 'block'; return; }
+  if (!state.entries.length) { errBox.textContent = 'No tienes registros semanales para enviar.'; errBox.style.display = 'block'; return; }
+  if (!state.perfil || !state.perfil.sexo || !state.perfil.grupo || !state.perfil.semestre) {
+    errBox.textContent = 'Completa primero "Mis datos" (Sexo, Grupo, Semestre).'; errBox.style.display = 'block';
+    sheetUrlInput.scrollIntoView({behavior:'smooth'}); return;
+  }
+
+  const btn = document.getElementById('sendSheet');
+  const oldText = btn.textContent; btn.textContent = 'Enviando…'; btn.disabled = true;
+
+  const p = state.perfil;
+  const payload = {
+    perfil: p,
+    entries: state.entries,
+    retosFamilia: state.retos.filter(Boolean).length,
+    retosAmigos: state.retosA.filter(Boolean).length,
+    totalRetosFamilia: RETOS.length,
+    totalRetosAmigos: RETOS_AMIGOS.length
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.result === 'success') {
+      okBox.textContent = '✓ Datos enviados correctamente a la hoja'; okBox.style.display = 'block'; okBox.style.color = 'var(--good)';
+      setTimeout(() => okBox.style.display = 'none', 4000);
+    } else {
+      throw new Error(json.error || 'Respuesta inesperada del servidor');
+    }
+  } catch (e) {
+    errBox.textContent = 'Error al enviar: ' + e.message + '. Verifica la URL y tu conexión.';
+    errBox.style.display = 'block';
+  } finally {
+    btn.textContent = oldText; btn.disabled = false;
+  }
+});
+
+renderAll(); draw();
+</script>
+</body>
+</html>
